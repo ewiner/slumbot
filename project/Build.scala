@@ -4,12 +4,14 @@ import play.Project._
 
 object ApplicationBuild extends Build {
 
-    val appName         = "helloworld"
+    val appName         = "slumbot"
     val appVersion      = "1.0"
 
     val appDependencies = Seq(
-      // Add your project dependencies here,
-      "mysql" % "mysql-connector-java" % "5.1.21", jdbc, anorm
+      "mysql" % "mysql-connector-java" % "5.1.21",
+      jdbc,
+      anorm,
+      "com.socrata" % "soda-consumer-scala_2.9.2" % "1.0.0"
     )
 
     val main = play.Project(appName, appVersion, appDependencies).settings(

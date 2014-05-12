@@ -1,66 +1,60 @@
-@(helloForm: Form[(String,Int,Option[String])])
+@()
 
-@import helper._
+    @main(title = "Slumbot") {
 
-@main(title = "The 'helloworld' application") {
+        <h1>Search for an NYC apartment building:</h1>
 
-    <h1>Configure your 'Hello world':</h1>
+        <div id="aptsearch">
+            <input class="typeahead" type="text" placeholder="Address">
+        </div>
 
-    @form(action = routes.Application.sayHello, args = 'id -> "helloform") {
+        <script>
 
-        @inputText(
-            field = helloForm("name"),
-            args = '_label -> "What's your name?", 'placeholder -> "World"
-        )
+            var substringMatcher = function(strs) {
+              return function findMatches(q, cb) {
+                var matches, substringRegex;
 
-        @inputText(
-            field = helloForm("repeat"),
-            args = '_label -> "How many times?", 'size -> 3, 'placeholder -> 10
-        )
+                // an array that will be populated with substring matches
+                matches = [];
 
-        @select(
-            field = helloForm("color"), 
-            options = options(
-                "" -> "Default",
-                "red" -> "Red",
-                "green" -> "Green",
-                "blue" -> "Blue"
-            ),
-            args = '_label -> "Choose a color"
-        )
+                // regex used to determine if a string contains the substring `q`
+                substrRegex = new RegExp(q, 'i');
 
-        <p class="buttons">
-            <input type="submit" id="submit">
-        <p>
-        
+                // iterate through the pool of strings and for any string that
+                // contains the substring `q`, add it to the `matches` array
+                $.each(strs, function(i, str) {
+                  if (substrRegex.test(str)) {
+                    // the typeahead jQuery plugin expects suggestions to a
+                    // JavaScript object, refer to typeahead docs for more info
+                    matches.push({ value: str });
+                  }
+                });
 
-  <!-- this is used for first time display of clickstart - a template-->
-  <div id="clickstart_content" style="display:none">
-     <p>
-      Congratulations, <a href="#CS_appManageUrl"><span>#CS_appName</span></a>, your <a href="#CS_docUrl"><span>#CS_name</span></a> application is now running.<br />
-      To modify it, take the following steps to clone the source repository:
-    </p>
+                cb(matches);
+              };
+            };
 
-    <div class="CB_codeSample">
-      git clone #CS_source #CS_appName<br/>
-          cd #CS_appName<br/>
-          ---- do your magic edits ----<br/>
-          git commit -m 'This is now even better !'<br/>
-          git push origin master
-    </div>
+            var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
+              'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii',
+              'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana',
+              'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
+              'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+              'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
+              'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+              'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+              'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+            ];
 
-    <p>Manage your application components at the following URLs:</p>
-    <ul>
-      <li><strong>Core application:</strong> <a href="#CS_appManageUrl">#CS_appManageUrl</a></li>
-      <li><strong>Database:</strong> <a href="#CS_dbManageUrl">#CS_dbManageUrl</a></li>
-      <li><strong>Jenkins Build System:</strong> <a href="#CS_jenkinsUrl">#CS_jenkinsUrl</a></li>
-    </ul>
-  </div>
+            $('#the-basics .typeahead').typeahead({
+              hint: true,
+              highlight: true,
+              minLength: 1
+            },
+            {
+              name: 'states',
+              displayKey: 'value',
+              source: substringMatcher(states)
+            });
 
-  <script type="text/javascript" src="https://s3.amazonaws.com/cloudbees-downloads/clickstart/clickstart_intro.js"></script>
-  <!-- end clickstart intro section -->
-        
-
+        </script>
     }
-
-}

@@ -3,10 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
-
-# Hello action
-GET     /hello                      controllers.Application.sayHello
+GET     /                           controllers.IntroController.index
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
