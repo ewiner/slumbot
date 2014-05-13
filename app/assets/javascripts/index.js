@@ -1,29 +1,60 @@
 
+var validCounties = ['New York County', 'Kings County', 'Queens County', 'Richmond County', 'Bronx County'];
+
+function showValidationError(msg) {
+    console.log("validation error: " + msg);
+}
+
+function showFault(msg) {
+    console.log("fault: " + msg);
+}
+
+function arrayStartsWith(arr, expected) {
+    return arr.length >= 1 && arr[0] === expected;
+}
+
+function findAddressComponent(place, componentType) {
+    var addresses = place.address_components;
+
+    for (var i = 0; i < addresses.length; i++) {
+        var address = addresses[i];
+        if (arrayStartsWith(address.types, componentType)) {
+            return address;
+        }
+    }
+    return false;
+}
+
+function validatePlace(place) {
+
+    if (!arrayStartsWith(place.types, 'street_address')) {
+        showValidationError("Please choose a valid building address.");
+        return false;
+    }
+
+    var county = findAddressComponent(place, 'administrative_area_level_2');
+    if (!county || $.inArray(county.long_name, validCounties) === -1) {
+        showValidationError("Please choose an address in New York City."); // TODO: suggest one!
+        return false;
+    }
+
+    return true;
+}
+
+function loadPlace(place) {
+    console.log(place.reference);
+}
 
 $(function() {
 
-    var mapCenter = {lat: 40.7692907, lng: -73.8931637};
-
-    var mapOptions = {
-        center: mapCenter,
-        zoom: 11,
-        disableDefaultUI: true,
-        mapTypeControl: true,
-        rotateControl: true,
-        rotateControlOptions: {
-            position: google.maps.ControlPosition.RIGHT_TOP
-        }
-    };
-
-//    var map = new google.maps.Map($("#map-canvas")[0], mapOptions);
+    var nycCenter = new google.maps.LatLng(40.7692907, -73.8931637);
 
     var input = $('#pac-input')[0];
 
-//    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-    var autocomplete = new google.maps.places.Autocomplete(input);
-    autocomplete.setBounds(new google.maps.LatLngBounds(mapCenter, mapCenter));
-    autocomplete.setTypes(['geocode']);
+    var autocomplete = new google.maps.places.Autocomplete(input, {
+        bounds: new google.maps.LatLngBounds(nycCenter, nycCenter),
+        types: ['geocode']
+    });
 
     google.maps.event.addListener(autocomplete, 'place_changed', function() {
         var place = autocomplete.getPlace();
@@ -31,16 +62,10 @@ $(function() {
             return;
         }
 
-        var address = '';
-        if (place.address_components) {
-            address = [
-                (place.address_components[0] && place.address_components[0].short_name || ''),
-                (place.address_components[1] && place.address_components[1].short_name || ''),
-                (place.address_components[2] && place.address_components[2].short_name || '')
-            ].join(' ');
+        if (!validatePlace(place)) {
+            return;
         }
 
-        print(place.name);
-        print(address);
+        loadPlace(place);
     });
 });
