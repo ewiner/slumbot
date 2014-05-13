@@ -6,7 +6,12 @@ import play.api.test._
 import play.api.test.Helpers._
 
 class ApplicationSpec extends Specification {
-  
+
+  "Jenkins" should {
+    "report the success of this fake test" in {
+      success
+    }
+  }
 
   /*
   "Application" should {
