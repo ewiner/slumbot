@@ -1,6 +1,25 @@
-@(addr: String)
+@(placeRef: String, addr: String, sources: Seq[DataSource])
 
 @main(title = s"Slumbot - $addr") {
 
     <h1>Info for @addr</h1>
+
+    <ul id="sources-done">
+    </ul>
+
+    <div id="sources-working">
+        <h3>Working...</h3>
+
+        @for(source <- sources) {
+            <li class="source" data-source-slug="@source.slug">
+                <h5><strong>@source.name</strong>: @source.description</h5>
+                <div class="sub-details"></div>
+            </li>
+        }
+    </div>
+
+    <script>
+        var placeRef = "@placeRef";
+    </script>
+    <script src="@routes.Assets.at("javascripts/info.js")" type="text/javascript"></script>
 }

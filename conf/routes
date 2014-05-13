@@ -6,6 +6,7 @@
 GET        /                        controllers.IntroController.index
 
 GET        /info/:ref               controllers.BuildingController.infoPage(ref)
+GET        /info/:slug/:ref         controllers.BuildingController.subInfo(ref, slug)
 
 GET        /jsRoutes                controllers.Application.jsRoutes
 

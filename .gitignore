@@ -1,5 +1,7 @@
-logs
-dist
+.idea/
+.idea_modules/
+logs/
+dist/
 project/project
 project/target
 target
