@@ -8,9 +8,6 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0"
 
     val appDependencies = Seq(
-      "mysql" % "mysql-connector-java" % "5.1.21",
-      jdbc,
-      anorm,
       "com.socrata" % "soda-consumer-scala_2.9.2" % "1.0.0"
     )
 

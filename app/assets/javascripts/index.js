@@ -1,12 +1,9 @@
 
-var validCounties = ['New York County', 'Kings County', 'Queens County', 'Richmond County', 'Bronx County'];
+var VALID_COUNTIES = ['New York County', 'Kings County', 'Queens County', 'Richmond County', 'Bronx County'];
+var NYC_CENTER = new google.maps.LatLng(40.7692907, -73.8931637);
 
 function showValidationError(msg) {
     console.log("validation error: " + msg);
-}
-
-function showFault(msg) {
-    console.log("fault: " + msg);
 }
 
 function arrayStartsWith(arr, expected) {
@@ -33,7 +30,7 @@ function validatePlace(place) {
     }
 
     var county = findAddressComponent(place, 'administrative_area_level_2');
-    if (!county || $.inArray(county.long_name, validCounties) === -1) {
+    if (!county || $.inArray(county.long_name, VALID_COUNTIES) === -1) {
         showValidationError("Please choose an address in New York City."); // TODO: suggest one!
         return false;
     }
@@ -42,17 +39,15 @@ function validatePlace(place) {
 }
 
 function loadPlace(place) {
-    console.log(place.reference);
+    document.location = jsRoutes.controllers.BuildingController.infoPage(place.reference).url;
 }
 
 $(function() {
 
-    var nycCenter = new google.maps.LatLng(40.7692907, -73.8931637);
-
     var input = $('#pac-input')[0];
 
     var autocomplete = new google.maps.places.Autocomplete(input, {
-        bounds: new google.maps.LatLngBounds(nycCenter, nycCenter),
+        bounds: new google.maps.LatLngBounds(NYC_CENTER, NYC_CENTER),
         types: ['geocode']
     });
 

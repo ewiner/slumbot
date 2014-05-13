@@ -10,9 +10,9 @@
         }
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+        <script type="text/javascript" src="@routes.Application.jsRoutes"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
-        @*<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.2/typeahead.bundle.min.js" type="text/javascript"></script>*@
-        <script src="//maps.googleapis.com/maps/api/js?sensor=true&libraries=places" type="text/javascript"></script>
+        <script src="//maps.googleapis.com/maps/api/js?sensor=true&libraries=places&key=@Application.googleApiKey" type="text/javascript"></script>
     </head>
     <body>
 
