@@ -20,56 +20,30 @@ section {
     padding: 10px 30px;
 }
 
-#helloform dd {
-    display: inline-block;
+.controls {
+    margin-top: 16px;
+    border: 1px solid transparent;
+    border-radius: 2px 0 0 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 32px;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-#helloform dd.info {
-    display: none;
+#pac-input {
+    background-color: #fff;
+    padding: 0 11px 0 13px;
+    width: 400px;
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 300;
+    text-overflow: ellipsis;
 }
 
-#helloform dd.error {
-    margin-left: 10px;
-    font-size: 12px;
-    color: #c00;
+#pac-input:focus {
+    border-color: #4d90fe;
+    margin-left: -1px;
+    padding-left: 14px;  /* Regular padding-left + 1. */
+    width: 401px;
 }
-
-#helloform label {
-    font-size: 14px;
-}
-
-#helloform dl {
-    background: #FAFAFA;
-    padding: 10px;
-}
-
-#helloform dl.error {
-    background: #FBDDE6;
-}
-
-#helloform dt {
-    display: inline-block;
-    width: 160px;
-}
-
-.buttons {
-    background: #536565;
-    padding: 10px;
-    margin-top: 30px;
-}
-
-.buttons input, .buttons a {
-    border: 1px solid #2F3A3A;
-    background: #fff;
-    font-size: 12px;
-    cursor: pointer;
-    display: inline-block;
-    padding: 5px 10px;
-    text-decoration: none;
-    color: #000;
-}
-
-ul {
-    padding-left: 20px;
-}
-
