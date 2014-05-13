@@ -32,7 +32,7 @@ object DataSources {
         case 3 => SubInfoResult.Unknown
       }
 
-      val html = Html("hello <b>hello</b> hello!")
+      val html = Html("test <b>test</b> test!")
       SubInfoData(result, html)
     }
 

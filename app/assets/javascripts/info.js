@@ -1,5 +1,6 @@
 $(function() {
-    var sourceLIs = $("#sources-working").find(".source");
+    var sourcesWorking = $("#sources-working");
+    var sourceLIs = sourcesWorking.find(".source");
     sourceLIs.each(function() {
         var sourceLI = $(this);
         var slug = sourceLI.data("source-slug");
@@ -8,7 +9,9 @@ $(function() {
                 sourceLI.appendTo($("#sources-done"));
                 sourceLI.addClass(data['result']);
                 sourceLI.find(".sub-details").html(data['html']);
-
+                if (sourcesWorking.find(".source").length === 0) {
+                    sourcesWorking.hide();
+                }
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
                 console.log('subinfo failure!');
