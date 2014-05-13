@@ -5,23 +5,17 @@ import play.api.libs.ws._
 import scala.concurrent.{Promise, Future, ExecutionContext}
 import scala.util.Random
 import play.api.libs.json._
-import models.DataSource
+import models.{SubInfoData, DataSources, DataSource}
 
 object BuildingController extends Controller {
 
-  val DataSources = Seq(
-    DataSource("311", "311 Complaints", "foo"),
-    DataSource("boiler", "Boiler Maintenance", "foo")
-  )
-
   def infoPage(placeRef: String) = Action.async {
     implicit val context = scala.concurrent.ExecutionContext.Implicits.global
-    getAddressFromRef(placeRef).map(addr => Ok(views.html.info(placeRef, addr, DataSources)))
+    getAddressFromRef(placeRef).map(addr => Ok(views.html.info(placeRef, addr, DataSources.all)))
   }
 
   private def getAddressFromRef(placeRef: String)(implicit context: ExecutionContext) = {
     // TODO: any error handling whatsoever.  see https://developers.google.com/places/documentation/details
-
 
     WS.url("https://maps.googleapis.com/maps/api/place/details/json")
       .withQueryString(
@@ -35,19 +29,14 @@ object BuildingController extends Controller {
       }
   }
 
-  val ResultTypes = Seq("positive", "neutral", "negative", "unknown")
   def subInfo(placeRef: String, sourceSlug: String) = Action.async {
-    println(sourceSlug)
-
     implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
-    val result = ResultTypes(Random.nextInt(4))
-    val html = "hello hello hello!"
-    val json = Json.obj(
-      "result" -> result,
-      "html" -> html
-    )
-
-    Future.successful(Ok(json))
+    DataSources.allBySlug.get(sourceSlug) match {
+      case None => Future.successful(BadRequest(s"Data source $sourceSlug doesn't exist."))
+      case Some(dataSource) =>
+        val result = dataSource.getData(placeRef)
+        result.map(r => Ok(Json.toJson(r))) // TODO: error checking
+    }
   }
 }

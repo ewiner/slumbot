@@ -1,97 +1,32 @@
-#  Play 2 Hello World clickstart
+#  slumbot
 
-This clickstart sets up a SBT build service, repository and a basic Play 2 application.
+### Analytics for Livable NYC Apartment Buildings
 
-<a href="https://grandcentral.cloudbees.com/?CB_clickstart=https://raw.github.com/CloudBees-community/play2-clickstart/master/clickstart.json"><img src="https://d3ko533tu1ozfq.cloudfront.net/clickstart/deployInstantly.png"/></a>
+Looking for a new apartment in New York City?  Slumbot will search through public data to find warning signs for any 
+apartment building: noise complaints, building code violations, nearby construction, and more.
 
-Launch this clickstart and glory could be yours too ! Use it as a building block if you like.
+A live preview is currently deployed at [http://slumbot.winer.ly/?preview](http://slumbot.winer.ly/?preview).
 
-You can launch this on Cloudbees via a clickstart automatically, or follow the instructions below. 
+*This is currently unpolished, unfinished software, very much a work in progress.  I started writing it on May 12, 2014,
+ mostly to have something decent to submit to my [Significance Labs](http://significancelabs.org/) application.*
 
-If you don't have a cloudbees account, Sign in with GitHub:
-<button onClick="javascript:window.location='https://grandcentral.cloudbees.com/authenticate/start?provider=github&login_redirect=/';"><img src="https://grandcentral.cloudbees.com/images/github-icon_40.png" /></button>
+# Data Sources
 
-# Deploying manually: 
+* Google Maps does the address lookup
+* NYC Department of Buildings information is scraped from [BIS](http://a810-bisweb.nyc.gov/bisweb/bispi00.jsp)
+* 311 information comes from [NYC Open Data](https://data.cityofnewyork.us/)
 
-## To build and deploy this on CloudBees, follow those steps:
+# Tech Notes
 
-Create application:
+It's a pretty straightforward Scala Play 2.0 app.  To run locally, you'll need to set your Google API Key in 
+````conf/application.conf````.  Then, just type ````./sbt run```` and go to [http://localhost:9000/?preview](http://localhost:9000/?preview).
 
-    bees app:create MYAPP_ID -t play2
-    
-Create database:
+State of the union:
 
-    bees db:create -u DB_USER -p DB_PASSWORD DBNAME
-
-Bind database as datasource:
-
-    bees app:bind -db DBNAME -a MYAPP_ID -as ExampleDS    
-
-
-Create a new software project in Jenkins, changing the following:
-
-* Add this git repository (or yours, with this code) on Jenkins
-* Change JDK to:
-    
-        Oracle JDK 1.7 (Latest)
-    
-* Add an "Execute Shell" build step with:
-    
-        java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=384M -jar /opt/sbt/sbt-launch-0.11.3-2.jar -Dsbt.log.noformat=true dist
-    
-* Also add a post-build step "Deploy to CloudBees" with those parameters:
-
-        Applications: First Match
-        Application Id: MYAPP_ID
-        Filename Pattern: dist/*.zip
-    
-Then finally update your application from your own computer:
-    
-    bees config:set -a MYAPP_ID -Rjava_version=1.7 containerType=play2 proxyBuffering=false
-    bees app:restart MYAPP_ID
-
-## To build this locally:
-
-You will need play2 installed, or sbt (this jenkins build currently uses SBT).
-
-In the play2-clickstart directory, open a command line, and then type:
-
-    play dist
-
-Then deploy it on cloudbees typing:
-
-    bees app:deploy -a MYAPP_ID -t play2 -Rjava_version=1.7 dist/*.zip proxyBuffering=false
-
-## To run this locally:
-
-
-You will need a locally running MySQL server for this instance, 
-or you can use your cloudbees DB created above as part of of the clickstart.
-
-provide the environment variables so Play can connect to your DB: 
-    
-    export DATABASE_URL_DB=mysql://URL_TO_DB_HERE/DB_NAME
-    export DATABASE_PASSWORD_DB=PASSWORD_HERE
-    export DATABASE_USERNAME_DB=USERNAME_HERE
-
-If you want to connect to your cloudbees provided DB that was created: 
-
-First, find the details to to connect from the desktop to your CloudBees DB:
-    bees db:info -p yourCloudBeesDbId
-
-Then note the info and set the following environment variables: 
-
-    export DATABASE_PASSWORD_DB="(from above)"
-    export DATABASE_USERNAME_DB="(from above)"
-    export DATABASE_URL_DB="mysql://(host and port from above)/(database username from above)"
-
-
-
-
-Use the following command, and then browse to localhost:9000:
-
-    play run
-    
-    
-To get your cloudbees DB info - run bees db:info -p youraccount/appname(from your clickstart)    
-
+* **Scala**: reasonably happy with the structure of the code
+* **JavaScript**: using just straight jQuery for simplicity / development speed.  It'll start to get very messy if the 
+                  site gets any more complicated
+* **Testing**: entirely nonexistent
+* **Error Handling**: horrible.  Definitely necessary before release - many of the data sources (especially the BIS web
+scraper) have a ton of planned and unplanned downtime.
+* **UI Design and Polish**: pretty crappy still, there's plenty of little tweaks queueing up on my Trello board
