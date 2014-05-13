@@ -39,6 +39,7 @@ function validatePlace(place) {
 }
 
 function loadPlace(place) {
+    // TODO: feedback / spinner while it's loading
     document.location = jsRoutes.controllers.BuildingController.infoPage(place.reference).url;
 }
 
@@ -48,7 +49,7 @@ $(function() {
 
     var autocomplete = new google.maps.places.Autocomplete(input, {
         bounds: new google.maps.LatLngBounds(NYC_CENTER, NYC_CENTER),
-        types: ['geocode']
+        types: ['geocode']  // addresses only, no buildings or landmarks
     });
 
     google.maps.event.addListener(autocomplete, 'place_changed', function() {

@@ -1,8 +1,8 @@
-@(placeRef: String, addr: String, sources: Seq[DataSource])
+@(placeDetails: GooglePlace, sources: Seq[SubInfoFormatter[_]])
 
-@main(title = s"Slumbot - $addr") {
+@main(title = s"Slumbot - ${placeDetails.name}") {
 
-    <h1>Info for @addr</h1>
+    <h1>Info for @placeDetails.name</h1>
 
     <ul id="sources-done">
     </ul>
@@ -19,7 +19,7 @@
     </div>
 
     <script>
-        var placeRef = "@placeRef";
+        var placeRef = "@placeDetails.placeRef";
     </script>
     <script src="@routes.Assets.at("javascripts/info.js")" type="text/javascript"></script>
 }
