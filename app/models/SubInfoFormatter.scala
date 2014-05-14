@@ -17,7 +17,7 @@ object SubInfoFormatter {
     NoiseComplaintSubInfo
   )
 
-  lazy val allBySlug = all.map(ds => ds.slug -> ds).toMap
+  lazy val allBySlug = Map(all.map(ds => ds.slug -> ds) :_*)
 
   def random(slug: String, name: String): SubInfoFormatter[Null] = new SubInfoFormatter(slug, name, "Random data", DataSource.NoDataSource) {
 
