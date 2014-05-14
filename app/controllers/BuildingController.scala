@@ -17,13 +17,13 @@ object BuildingController extends Controller {
   def infoPage(placeRef: String) = Action.async {
     implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
-    GooglePlace.get(placeRef).map(place => Ok(views.html.info(place, DataSources.all)))
+    GooglePlace.get(placeRef).map(place => Ok(views.html.info(place, SubInfoFormatter.all)))
   }
 
   def subInfo(placeRef: String, sourceSlug: String) = Action.async {
     implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
-    DataSources.allBySlug.get(sourceSlug) match {
+    SubInfoFormatter.allBySlug.get(sourceSlug) match {
       case None => Future.successful(BadRequest(s"Data source $sourceSlug doesn't exist."))
       case Some(subInfo) =>
 
