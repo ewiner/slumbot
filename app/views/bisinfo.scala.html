@@ -1,8 +1,28 @@
-@(data: DataSources.BisMainData)
+@(data: BisMainData)
 
 <ul>
     <li><b>BIN: </b>@data.bin</li>
     <li><b>Block: </b>@data.block</li>
     <li><b>Lot: </b>@data.lot</li>
     <li><b>Classification: </b>@data.classification</li>
+    <li><b>Actions:</b>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Total</th>
+                    <th>Open</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for((label, (total, open)) <- data.stats) {
+                    <tr>
+                        <th>@label</th>
+                        <td>@total</td>
+                        <td>@open</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </li>
 </ul>

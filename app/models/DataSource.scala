@@ -6,9 +6,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import util.AsyncCache
 import controllers.Application
 
-abstract class DataSource[O](val name: String) {
+abstract class DataSource[O](val cacheKey: String) {
   def get(place: GooglePlace)(implicit context: ExecutionContext): Future[O] = {
-//    AsyncCache.getOrElseAsync(s"$name:${place.placeRef}", Application.CacheExpr){
+//    AsyncCache.getOrElseAsync(s"$cacheKey:${place.placeRef}", Application.CacheExpr){
       retrieve(place)
 //    }
   }

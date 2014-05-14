@@ -1,0 +1,27 @@
+@(complaints: Seq[ThreeOneOneCall])
+@import org.joda.time.format.DateTimeFormat
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Distance (ft)</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th>Complaint Type</th>
+            <th>Descriptor</th>
+            <th>Agency</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(complaint <- complaints) {
+            <tr>
+                <td>@complaint.distanceFt.round</td>
+                <td>@complaint.createdDate.toString(DateTimeFormat.shortDate())</td>
+                <td>@complaint.status</td>
+                <td>@complaint.complaintType</td>
+                <td>@complaint.descriptor</td>
+                <td>@complaint.agency</td>
+            </tr>
+        }
+    </tbody>
+</table>
