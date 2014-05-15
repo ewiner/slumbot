@@ -1,10 +1,22 @@
 @()
 
-@main(title = "Slumbot") {
+@main(title = "Slumbot", jsFile = "index.js") {
 
-    <h1>Search for an NYC apartment building:</h1>
 
-    <input id="pac-input" class="controls" type="text" placeholder="Enter a location">
+    <div class="row">
+        <div class="col-md-6 col-sm-8">
+            <div id="search-box">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="pac-input" placeholder="Enter an address..." value="86 E 4th St, New York, NY">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button" id="search-btn">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </span>
+                </div>
+                <p class="help-block" style="display: none"></p>
+            </div>
+        </div>
+    </div>
 
-    <script src="@routes.Assets.at("javascripts/index.js")" type="text/javascript"></script>
 }

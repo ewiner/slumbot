@@ -1,8 +1,17 @@
+var exampleChanged = false;
+var exampleDestination = "CpQBhwAAAFgqcR6l_AkSi1-BRW4ks5XEjyGySFd3HGPxSTNPlKrMwm5-pVOA4wakQcqmdPJCoH6GuiKaLIGeZRs455HuBPfpt8Sxed713Clqss6cdI-sCHChh14FniQXGZRGm4ZAyCVMnsuPVsh7tQMBSlqjr7jr63YzfXoMeq3iEmtcjWyei9g_lhjgBVOamziPYs33bxIQAF9h3yaRH46ZNHU2w_54zhoUArC4vFBjtowu4PUesR2M7ti7f1I";
 
 var VALID_COUNTIES = ['New York County', 'Kings County', 'Queens County', 'Richmond County', 'Bronx County'];
 var NYC_CENTER = new google.maps.LatLng(40.7692907, -73.8931637);
 
 function showValidationError(msg) {
+    $("#search-box").addClass("has-error");
+    $("#search-box .help-block").text(msg);
+    $("#search-box .help-block").show();
+    $("#pac-input").on('input propertychange paste', function() {
+        $("#search-box").removeClass("has-error");
+        $("#search-box .help-block").hide();
+    });
     console.log("validation error: " + msg);
 }
 
@@ -38,16 +47,18 @@ function validatePlace(place) {
     return true;
 }
 
-function loadPlace(place) {
+function loadPlace(placeRef) {
     // TODO: feedback / spinner while it's loading
-    document.location = jsRoutes.controllers.BuildingController.infoPage(place.reference).url;
+    document.location = jsRoutes.controllers.BuildingController.infoPage(placeRef).url;
 }
 
-$(function() {
+function initAddressSearch() {
+    $("#search-btn").off('click.example');
 
-    var input = $('#pac-input')[0];
+    var searchBox = $("#pac-input");
+    searchBox.val("");
 
-    var autocomplete = new google.maps.places.Autocomplete(input, {
+    var autocomplete = new google.maps.places.Autocomplete(searchBox[0], {
         bounds: new google.maps.LatLngBounds(NYC_CENTER, NYC_CENTER),
         types: ['geocode']  // addresses only, no buildings or landmarks
     });
@@ -62,6 +73,15 @@ $(function() {
             return;
         }
 
-        loadPlace(place);
+        loadPlace(place.reference);
     });
+}
+
+$(function() {
+
+    $("#search-btn").on('click.example', function() {
+        loadPlace(exampleDestination);
+    });
+    $("#pac-input").one('focus', initAddressSearch);
+
 });
