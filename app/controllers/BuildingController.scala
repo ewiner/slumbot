@@ -1,15 +1,9 @@
 package controllers
 
-import _root_.util.AsyncCache
 import play.api.mvc._
-import play.api.libs.ws._
-import scala.concurrent.{Promise, Future, ExecutionContext}
-import scala.util.Random
+import scala.concurrent.{Future, ExecutionContext}
 import play.api.libs.json._
 import models._
-import play.api.cache.Cache
-import models.GooglePlace
-import play.api.libs.json.JsArray
 import scala.Some
 
 object BuildingController extends Controller {
