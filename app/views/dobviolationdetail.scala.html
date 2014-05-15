@@ -1,0 +1,10 @@
+@(bisData: BisMainData, totalDob: Int, totalEcb: Int)
+
+<p>
+    <a href="http://a810-bisweb.nyc.gov/bisweb/ActionsByLocationServlet?requestid=1&allbin=@bisData.bin&allinquirytype=BXS4OCV3&stypeocv3=V" target="_blank">
+        @totalDob Department of Buildings Violations
+    </a><br>
+    <a href="http://a810-bisweb.nyc.gov/bisweb/ECBQueryByLocationServlet?requestid=1&allbin=@bisData.bin" target="_blank">
+        @totalEcb Environmental Control Board Violations
+    </a>
+</p>

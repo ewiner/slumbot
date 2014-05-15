@@ -13,7 +13,7 @@
         @for(complaint <- complaints) {
             <tr>
                 <td>@complaint.createdDate.toString(DateTimeFormat.longDate())</td>
-                <td></td>
+                <td>@complaint.location</td>
                 <td>@complaint.descriptor</td>
             </tr>
         }
