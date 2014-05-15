@@ -11,7 +11,7 @@ case class BisMainData(bin: Int, block: Int, lot: Int, classification: String, s
 
 object BisSubInfo extends SubInfoFormatter("bisinfo", "General Building Info", "Just some stuff", BisMainDataSource) {
   def format(place: GooglePlace, data: BisMainData) = {
-    SubInfoData(SubInfoResult.Neutral, views.html.bisinfo(data))
+    SubInfoData(SubInfoResult.Neutral, views.html.bisinfo(data), views.html.bisinfo(data))
   }
 }
 

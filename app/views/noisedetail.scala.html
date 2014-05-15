@@ -1,0 +1,21 @@
+@(complaints: Seq[ThreeOneOneCall])
+@import org.joda.time.format.DateTimeFormat
+
+<table class="table table-condensed table-bordered table-responsive">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Location</th>
+            <th>Complaint</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(complaint <- complaints) {
+            <tr>
+                <td>@complaint.createdDate.toString(DateTimeFormat.longDate())</td>
+                <td></td>
+                <td>@complaint.descriptor</td>
+            </tr>
+        }
+    </tbody>
+</table>

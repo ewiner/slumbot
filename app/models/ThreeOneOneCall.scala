@@ -1,34 +1,29 @@
 package models
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 import play.api.libs.ws.WS
-import play.api.libs.json.{JsValue, JsArray}
-import org.joda.time.DateTime
-import models.SubInfoResult.Neutral
-import scala.util.Try
+import play.api.libs.json.JsArray
+import org.joda.time.{Days, DateTime}
 import org.joda.time.format.ISODateTimeFormat
+import akka.event.slf4j.SLF4JLogging
 
 case class ThreeOneOneCall(distanceFt: Double, createdDate: DateTime, status: String, agency: String, complaintType: String, descriptor: String)
 
-object ThreeOneOneDataSource extends DataSource[Seq[ThreeOneOneCall]]("311") {
-  val LatitudeBounds = 0.0014
-  val LongitudeBounds = 0.0025
+object ThreeOneOneDataSource extends DataSource[Seq[ThreeOneOneCall]]("311") with SLF4JLogging {
 
-  val InvalidAgencies = Set("TLC", "DCA", "DOT")
+  val LatitudeBounds = 0.0028 // about 2000 ft in both directions
+  val LongitudeBounds = 0.0036
 
   protected def retrieve(place: GooglePlace)(implicit context: ExecutionContext) = {
-    query311table(place).map{data =>
+    query311table(place).map{allRows =>
 
-      val allRows = data.json.as[JsArray].value
-      def notTaxiOrBusiness(row: JsValue) = !InvalidAgencies.contains((row \ "agency").as[String])
-      
-      for (row <- allRows.filter(notTaxiOrBusiness)) yield {
+      for (row <- allRows) yield {
         def jsStr(key: String) = (row \ key).as[String]
 
         // numbers come back from the SODA2 API as strings, for more precision
         val latitude = jsStr("latitude").toDouble
         val longitude = jsStr("longitude").toDouble
-        val distance = haversine(place.latitude, place.longitude, latitude, longitude) * 3280.8 // km to feet
+        val distance = haversine(place.latitude, place.longitude, latitude, longitude)
 
         val createdDate = ISODateTimeFormat.dateTimeParser.parseDateTime(jsStr("created_date"))
 
@@ -37,40 +32,68 @@ object ThreeOneOneDataSource extends DataSource[Seq[ThreeOneOneCall]]("311") {
     }
   }
 
-  private def query311table(place: GooglePlace) = {
+  private def query311table(place: GooglePlace)(implicit context: ExecutionContext) = {
     val minLat = place.latitude - LatitudeBounds
     val maxLat = place.latitude + LatitudeBounds
     val minLng = place.longitude - LongitudeBounds
     val maxLng = place.longitude + LongitudeBounds
 
-    WS.url("http://data.cityofnewyork.us/resource/erm2-nwe9.json")
-      .withQueryString("$where" -> s"within_box(location,$maxLat,$minLng,$minLat,$maxLng)",
-                       "$order" -> "created_date DESC")
-      .withRequestTimeout(60000)
-      .get()
+    val calls = for (agency <- Seq("DEP", "NYPD")) yield {
+      val timer = System.currentTimeMillis()
+      WS.url("http://data.cityofnewyork.us/resource/erm2-nwe9.json")
+        .withQueryString("$where" -> s"within_box(location,$maxLat,$minLng,$minLat,$maxLng)",
+          "agency" -> agency,
+          "$order" -> "created_date DESC",
+          "$limit" -> "500")
+        .withRequestTimeout(60000)
+        .get()
+        .andThen{case _ => log.debug(s"finished 311 calls from $agency in ${System.currentTimeMillis() - timer} ms")}
+        .map(_.json.as[JsArray].value)
+    }
+
+    Future.reduce(calls)(_++_)
   }
 
   /**
-   * Calculates the distance in km between two lat/long points
+   * Calculates the distance in feet between two lat/long points
    * using the haversine formula
    *
    * From http://stackoverflow.com/a/18862550/17697
    */
   def haversine(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double = {
-    val r = 6378.137
+    val r = 6378.137 // earth's radius in km
     val dLat = Math.toRadians(lat2 - lat1)
     val dLon = Math.toRadians(lng2 - lng1)
     val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
     val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     val d = r * c
-    d
+    d * 3280.8 // km to feet
   }
 }
 
 object NoiseComplaintSubInfo extends SubInfoFormatter[Seq[ThreeOneOneCall]]("noise", "Noise Complaints", "noise complaints", ThreeOneOneDataSource) {
+  def isRecentNoiseComplaint(call: ThreeOneOneCall) = {
+    call.complaintType.toLowerCase.contains("noise") && Days.daysBetween(call.createdDate, DateTime.now).getDays <= 365
+  }
+
+  val AvgRatio = (300 * 300 * math.Pi) / (2000 * 2000)
+
   def format(place: GooglePlace, data: Seq[ThreeOneOneCall]) = {
-    val noiseComplaints = data.filter(_.complaintType.toLowerCase.contains("noise"))
-    val sorted = noiseComplaints.sortBy(_.distanceFt)
-    SubInfoData(Neutral, views.html.noise(sorted))
+    val noiseComplaints = data.filter(isRecentNoiseComplaint)
+
+    val nearby = noiseComplaints.filter(call => call.distanceFt <= 300).toSeq
+
+    println(s"${noiseComplaints.length} * $AvgRatio = ${(noiseComplaints.length * AvgRatio)}")
+    val ratio = nearby.length / (noiseComplaints.length * AvgRatio)
+
+    val (result, blurbPart) = ratio match {
+      case _ if ratio > 2.0 => (SubInfoResult.Negative, "well above average")
+      case _ if ratio > 0.5 => (SubInfoResult.Positive, "well below average")
+      case _ if ratio < 0.8 => (SubInfoResult.Positive, "below average")
+      case _ if ratio > 1.2 => (SubInfoResult.Negative, "above average")
+      case _ => (SubInfoResult.Neutral, "about average")
+    }
+
+    SubInfoData(result, views.html.noiseblurb(nearby, blurbPart), views.html.noisedetail(nearby))
   }
 }

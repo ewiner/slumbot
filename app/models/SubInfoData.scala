@@ -3,13 +3,14 @@ package models
 import play.api.templates.Html
 import play.api.libs.json.{Writes, JsValue, Json}
 
-case class SubInfoData(result: SubInfoResult, html: Html)
+case class SubInfoData(result: SubInfoResult, blurb: Html, details: Html)
 
 object SubInfoData {
   implicit val writes = new Writes[SubInfoData] {
     override def writes(o: SubInfoData): JsValue = Json.obj(
       "result" -> o.result.cssClass,
-      "html" -> o.html.toString()
+      "blurb" -> o.blurb.toString,
+      "details" -> o.details.toString()
     )
   }
 }

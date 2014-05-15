@@ -31,7 +31,7 @@ object SubInfoFormatter {
       }
 
       val html = Html("test <b>test</b> test!")
-      SubInfoData(result, html)
+      SubInfoData(result, html, html)
     }
 
   }

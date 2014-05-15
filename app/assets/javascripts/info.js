@@ -8,7 +8,7 @@ $(function() {
             .done(function(data) {
                 sourceLI.appendTo($("#sources-done"));
                 sourceLI.addClass(data['result']);
-                sourceLI.find(".sub-details").html(data['html']);
+                sourceLI.find(".sub-details").html(data['blurb'] + data['details']);
                 if (sourcesWorking.find(".source").length === 0) {
                     sourcesWorking.hide();
                 }
