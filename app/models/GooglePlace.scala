@@ -4,7 +4,6 @@ import scala.concurrent.ExecutionContext
 import play.api.libs.ws.WS
 import controllers.Application
 import play.api.libs.json.JsArray
-import play.api.cache.Cache
 
 case class GooglePlace(name: String, placeRef: String, url: String, latitude: Double, longitude: Double, address: Map[String, String])
 
@@ -13,8 +12,7 @@ object GooglePlace {
   def get(placeRef: String)(implicit context: ExecutionContext) = {
     // TODO: any error handling whatsoever.  see https://developers.google.com/places/documentation/details
 
-    import play.api.Play.current
-    Cache.getOrElse(s"googleplace:$placeRef", Application.CacheExpr){
+    Application.cachedQuery(s"googleplace:$placeRef"){
 
       WS.url("https://maps.googleapis.com/maps/api/place/details/json")
         .withQueryString(

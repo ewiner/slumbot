@@ -2,12 +2,11 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 import controllers.Application
-import play.api.cache.Cache
 
 abstract class DataSource[O](val cacheKey: String) {
   def get(place: GooglePlace)(implicit context: ExecutionContext): Future[O] = {
-    import play.api.Play.current
-    Cache.getOrElse(s"$cacheKey:${place.placeRef}", Application.CacheExpr){
+
+    Application.cachedQuery(s"$cacheKey:${place.placeRef}"){
       retrieve(place)
     }
   }
