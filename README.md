@@ -14,8 +14,9 @@ A live preview is currently deployed at [http://slumbot.winer.ly/?preview](http:
 
 * Google Maps does the address lookup
 * NYC Department of Buildings information is scraped from [BIS](http://a810-bisweb.nyc.gov/bisweb/bispi00.jsp)
-* 311 information and building permits information comes from [NYC Open Data](https://data.cityofnewyork.us/)
+* 311 information information comes from [NYC Open Data](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9)
 * Possible future stuff:
+    - Building permits info from [this table](https://data.cityofnewyork.us/City-Government/Multi-Agency-Permits/xfyi-uyt5?) to check for nearby construction & demolition.
     - Property tax records (including number of units, avg. worth of apartments) could come from [this MS Access file](https://data.cityofnewyork.us/Housing-Development/Property-Valuation-and-Assessment-data-Tax-Classes/cqds-77ys)
     - Look up Yelp reviews on building management
     - Apartment turnover info from StreetEasy

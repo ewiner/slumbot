@@ -2,21 +2,37 @@
 
 @main(title = s"Slumbot - ${placeDetails.name}", jsFile = "info.js") {
 
-    <h1>Info for @placeDetails.name</h1>
+    <h3 class="address">@placeDetails.name</h3>
 
-    <ul id="sources-done">
-    </ul>
-
-    <div id="sources-working">
-        <h3>Working...</h3>
-
-        @for(source <- sources) {
-            <li class="source" data-source-slug="@source.slug">
-                <h5><strong>@source.name</strong></h5>
-                <div class="sub-details"></div>
-            </li>
-        }
-    </div>
+    @for(source <- sources) {
+        <div class="panel panel-default source source-working" data-source-slug="@source.slug">
+            <div class="panel-heading">
+                <div class="panel-details more-details hidden">
+                    <small><a href="#">more details <span class="glyphicon glyphicon-chevron-down"></span></a></small>
+                </div>
+                <div class="panel-details less-details hidden">
+                    <small><a href="#">less details <span class="glyphicon glyphicon-chevron-up"></span></a></small>
+                </div>
+                <h3 class="panel-title">
+                    @source.name
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="blurbicon">
+                    <span class="loadingtrail hidden"></span>
+                    <span class="glyphicon glyphicon-stats text-muted hidden"></span>
+                    <span class="glyphicon glyphicon-exclamation-sign text-danger hidden"></span>
+                    <span class="glyphicon glyphicon-info-sign text-muted text-info hidden"></span>
+                    <span class="glyphicon glyphicon-ok-sign text-success hidden"></span>
+                    <span class="glyphicon glyphicon-question-sign text-muted hidden"></span>
+                </div>
+                <div class="blurbtext">
+                    <em>working...</em>
+                </div>
+            </div>
+            <div class="panel-footer collapse source-footer"></div>
+        </div>
+    }
 
     <script>
         var placeRef = "@placeDetails.placeRef";
