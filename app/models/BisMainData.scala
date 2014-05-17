@@ -10,31 +10,21 @@ import play.api.templates.Html
 
 case class BisMainData(bin: Int, block: Int, lot: Int, classification: String, stats: Map[String, (Int, Int)])
 
-object DobComplaintsSubInfo extends SubInfoFormatter("dobcomplaints", "Building Complaints", BisMainDataSource) {
+object DobComplaintsSubInfo extends SubInfoFormatter("dobcomplaints", "Building Complaints", BisMainDataSource) with DobStatFormat {
   def format(place: GooglePlace, data: BisMainData) = {
     val (total, open) = data.stats("Complaints")
     val openBlurb = if (open == 0) "" else s", including <strong>$open</strong> complaints still outstanding,"
     val blurbBase = s"There have been <strong>$total</strong> complaints$openBlurb made to the Department of Buildings."
 
-    val (result, blurb) = if (data.classification.startsWith("C7")) {
-      val (result, blurbPart) = total match {
-        case c if c < 5 => (SubInfoResult.Positive, "below average")
-        case c if c > 20 => (SubInfoResult.Negative, "well above average")
-        case c if c > 9 => (SubInfoResult.Negative, "above average")
-        case _ => (SubInfoResult.Neutral, "about average")
-      }
-      val judgeBlurb = blurbBase.dropRight(1) + s", which is <strong>$blurbPart</strong> for walk-up apartments."
-      (result, judgeBlurb)
-    } else {
-      val result = if (open > 0) SubInfoResult.Negative else SubInfoResult.Unknown
-      (result, blurbBase)
-    }
+    val (result, blurb) = formatWalkupStat(data, blurbBase, total, open,
+                                           wellBelowAvg = 0, belowAvg = 5, aboveAvg = 9, wellAboveAvg = 20)
 
     SubInfoData(result, Html(blurb), views.html.dobcomplaintdetail(data))
   }
+
 }
 
-object DobViolationsSubInfo extends SubInfoFormatter("dobviolations", "Building Code Violations", BisMainDataSource) {
+object DobViolationsSubInfo extends SubInfoFormatter("dobviolations", "Building Code Violations", BisMainDataSource) with DobStatFormat {
   def format(place: GooglePlace, data: BisMainData) = {
     val (totalDob, openDob) = data.stats("Violations-DOB")
     val (totalEcb, openEcb) = data.stats("Violations-ECB (DOB)")
@@ -44,11 +34,23 @@ object DobViolationsSubInfo extends SubInfoFormatter("dobviolations", "Building 
     val openBlurb = if (open == 0) "" else s", including <strong>$open</strong> violations still outstanding"
     val blurbBase = s"There have been <strong>$total</strong> building code violations$openBlurb."
 
-    val (result, blurb) = if (data.classification.startsWith("C7")) {
+    val (result, blurb) = formatWalkupStat(data, blurbBase, total, open,
+                                           wellBelowAvg = 0, belowAvg = 4, aboveAvg = 8, wellAboveAvg = 15)
+
+    SubInfoData(result, Html(blurb), views.html.dobviolationdetail(data, totalDob, totalEcb))
+  }
+}
+
+trait DobStatFormat {
+
+  def formatWalkupStat(bisData: BisMainData, blurbBase: String, total: Int, open: Int,
+                       wellBelowAvg: Int, belowAvg: Int, aboveAvg: Int, wellAboveAvg: Int) = {
+    if (bisData.classification.startsWith("C7")) {
       val (result, blurbPart) = total match {
-        case c if c < 4 => (SubInfoResult.Positive, "below average")
-        case c if c > 15 => (SubInfoResult.Negative, "well above average")
-        case c if c > 8 => (SubInfoResult.Negative, "above average")
+        case c if c < wellBelowAvg => (SubInfoResult.Positive, "below average")
+        case c if c < belowAvg     => (SubInfoResult.Positive, "below average")
+        case c if c > wellAboveAvg => (SubInfoResult.Negative, "well above average")
+        case c if c > aboveAvg     => (SubInfoResult.Negative, "above average")
         case _ => (SubInfoResult.Neutral, "about average")
       }
       val judgeBlurb = blurbBase.dropRight(1) + s", which is <strong>$blurbPart</strong> for walk-up apartments."
@@ -57,8 +59,6 @@ object DobViolationsSubInfo extends SubInfoFormatter("dobviolations", "Building 
       val result = if (open > 0) SubInfoResult.Negative else SubInfoResult.Unknown
       (result, blurbBase)
     }
-
-    SubInfoData(result, Html(blurb), views.html.dobviolationdetail(data, totalDob, totalEcb))
   }
 }
 
