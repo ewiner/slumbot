@@ -3,12 +3,14 @@
 # ~~~~
 
 # Home page
-GET        /                        controllers.IntroController.index
+GET        /                                          controllers.IntroController.index
 
-GET        /info/:ref               controllers.BuildingController.infoPage(ref)
-GET        /info/:slug/:ref         controllers.BuildingController.subInfo(ref, slug)
+GET        /info/:ref                                 controllers.BuildingController.infoPage(ref)
+GET        /info/:slug/:ref                           controllers.BuildingController.subInfo(ref, slug)
 
-GET        /jsRoutes                controllers.Application.jsRoutes
+GET        /jsRoutes                                  controllers.Application.jsRoutes
+
+GET        /seecomplaintsfrom/nyc.gov/for/:bin        controllers.Application.redirToComplaintsPage(bin: Int)
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file            controllers.Assets.at(path="/public", file)
+GET        /assets/*file                              controllers.Assets.at(path="/public", file)

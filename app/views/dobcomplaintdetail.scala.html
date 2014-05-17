@@ -1,5 +1,3 @@
 @(bisData: BisMainData)
 
-<a href="http://a810-bisweb.nyc.gov/bisweb/ComplaintsByAddressServlet?requestid=3&allbin=@bisData.bin" target=\"_blank\">
-    Complaint Details
-</a>
+<a href="@routes.Application.redirToComplaintsPage(bisData.bin)" target="_blank">Complaint Details</a><br>

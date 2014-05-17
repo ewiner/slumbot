@@ -52,4 +52,12 @@ object Application extends Controller {
       op.andThen{case Failure(_) => Cache.remove(cacheKey)}
     }
   }
+
+  /* Why a complicated JavaScript redirection instead of a link?  Because this particular page on the BIS website checks
+   * its referer header for "nyc.gov", or else it forwards you back to the BIS home page.  Since the routing URL for this
+   * action has "nyc.gov" in it, it passes that check and shows you the right page.
+   */
+  def redirToComplaintsPage(bin: Int) = Action {
+    Ok(views.html.dobcomplaintredir(bin))
+  }
 }
