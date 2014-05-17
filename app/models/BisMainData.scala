@@ -13,8 +13,8 @@ case class BisMainData(bin: Int, block: Int, lot: Int, classification: String, s
 object DobComplaintsSubInfo extends SubInfoFormatter("dobcomplaints", "Building Complaints", BisMainDataSource) {
   def format(place: GooglePlace, data: BisMainData) = {
     val (total, open) = data.stats("Complaints")
-    val openBlurb = if (open == 0) "" else s" ($open still outstanding)"
-    val blurbBase = s"There have been <strong>$total</strong>$openBlurb complaints made to the Department of Buildings."
+    val openBlurb = if (open == 0) "" else s", including <strong>$open</strong> complaints still outstanding,"
+    val blurbBase = s"There have been <strong>$total</strong> complaints$openBlurb made to the Department of Buildings."
 
     val (result, blurb) = if (data.classification.startsWith("C7")) {
       val (result, blurbPart) = total match {
@@ -26,7 +26,8 @@ object DobComplaintsSubInfo extends SubInfoFormatter("dobcomplaints", "Building 
       val judgeBlurb = blurbBase.dropRight(1) + s", which is <strong>$blurbPart</strong> for walk-up apartments."
       (result, judgeBlurb)
     } else {
-      (SubInfoResult.Unknown, blurbBase)
+      val result = if (open > 0) SubInfoResult.Negative else SubInfoResult.Unknown
+      (result, blurbBase)
     }
 
     SubInfoData(result, Html(blurb), views.html.dobcomplaintdetail(data))
@@ -40,8 +41,8 @@ object DobViolationsSubInfo extends SubInfoFormatter("dobviolations", "Building 
     val total = totalDob + totalEcb
     val open = openDob + openEcb
 
-    val openBlurb = if (open == 0) "" else s" ($open still outstanding)"
-    val blurbBase = s"There have been <strong>$total</strong>$openBlurb building code violations."
+    val openBlurb = if (open == 0) "" else s", including <strong>$open</strong> violations still outstanding"
+    val blurbBase = s"There have been <strong>$total</strong> building code violations$openBlurb."
 
     val (result, blurb) = if (data.classification.startsWith("C7")) {
       val (result, blurbPart) = total match {
@@ -53,7 +54,8 @@ object DobViolationsSubInfo extends SubInfoFormatter("dobviolations", "Building 
       val judgeBlurb = blurbBase.dropRight(1) + s", which is <strong>$blurbPart</strong> for walk-up apartments."
       (result, judgeBlurb)
     } else {
-      (SubInfoResult.Unknown, blurbBase)
+      val result = if (open > 0) SubInfoResult.Negative else SubInfoResult.Unknown
+      (result, blurbBase)
     }
 
     SubInfoData(result, Html(blurb), views.html.dobviolationdetail(data, totalDob, totalEcb))
@@ -118,11 +120,15 @@ object BisMainDataSource extends DataSource[BisMainData]("bismain") {
   private def parseStats(doc: Document) = {
     val statsTable = doc.select("td[width=390] > table > tbody > tr") // uggghh
     val statsRows = statsTable.asScala.drop(1).dropRight(1) // drop the first and last rows
+                      .map(_.select("td"))
+                      .filter(_.size() > 1) // only choose rows with more than one TD (sometimes BIS puts a message
+                                            // across all three columns in this table)
+
     val stats = for (statsRow <- statsRows) yield {
-        val cells = statsRow.children.asScala
+        val cells = statsRow.select("td").asScala
         val label = cells(0).text
         val total = cells(1).text.toInt
-        val open = Try(cells(3).text.toInt).getOrElse(0)
+        val open = Try(cells(2).text.toInt).getOrElse(0)
         label ->(total, open)
       }
     stats
